@@ -1,8 +1,5 @@
 package model;
 
-//import org.codehaus.jettison.json.JSONException;
-//import org.codehaus.jettison.json.JSONObject;
-
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
@@ -11,14 +8,21 @@ import java.io.*;
 public class Config {
 
     //Create variables for each of the JSON objects.
+
+    //Database settings
     private static String host;
     private static String port;
     private static String username;
     private static String password;
     private static String dbname;
+
+    //Server settings
+    private static int serverPort;
+
+    //Security
     private static String hashingSalt;
     private static String encryptionkey;
-    private static int serverPort;
+    private static String JWTSecret;
 
     // Create init-method to read from the config.json.dist file
     // and parse it to the variables in the class.
@@ -43,16 +47,16 @@ public class Config {
             setHost((String) jsonObject.get("host"));
             setPort((String) jsonObject.get("port"));
             setUsername((String) jsonObject.get("username"));
-
-            //setUsername("root");
-
+            setPassword((String) jsonObject.get("password"));
             setDbname((String) jsonObject.get("dbname"));
 
-            setPassword((String) jsonObject.get("password"));
+            setServerPort(Integer.parseInt(jsonObject.get("serverport").toString()));
+
             setEncryptionkey((String) jsonObject.get("encryptionkey"));
             setHashingSalt((String) jsonObject.get("hashingSalt"));
+            setJWTSecret((String) jsonObject.get("jwtsecret"));
 
-            setServerPort(Integer.parseInt(jsonObject.get("serverport").toString()));
+
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -83,6 +87,7 @@ public class Config {
     public static String getHashingSalt() {
         return hashingSalt;
     }
+    public static String getJWTSecret() {return JWTSecret;}
 
     public static void setDbname(String dbname) {
         Config.dbname = dbname;
@@ -119,4 +124,6 @@ public class Config {
     public static int getServerPort() {
         return serverPort;
     }
+
+    public static void setJWTSecret(String JWTSecret) {Config.JWTSecret = JWTSecret;}
 }
