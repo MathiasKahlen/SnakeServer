@@ -5,6 +5,7 @@ import java.util.HashMap;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+import controller.JWT;
 import controller.Logic;
 import controller.Security;
 import database.DatabaseWrapper;
@@ -34,11 +35,11 @@ public class Api {
 
         try {
 
+            String token;
             User user = new Gson().fromJson(data, User.class);
             user.setPassword(Security.hashing(user.getPassword()));
 
             HashMap <String, Integer> hashMap = Logic.authenticateUser(user.getUsername(), user.getPassword());
-
 
             if (hashMap.get("usertype") == 0) {
                 hashMap.put("code", 0);
@@ -60,10 +61,12 @@ public class Api {
                             .build();
 
                 case 2:
+                    token = JWT.createJWT(Integer.toString(hashMap.get("userid")), user.getUsername());
                     return Response
                             .status(200)
                             .entity("{\"message\":\"Login successful\", \"userid\":" + hashMap.get("userid") + "}")
                             .header("Access-Control-Allow-Headers", "*")
+                            .header("jwt", token)
                             .build();
                 default:
                     return Response

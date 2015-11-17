@@ -80,9 +80,8 @@ public class Logic {
      * @return hashMap with user type, error/succes code, userid
      */
     public static HashMap authenticateUser(String username, String password) {
-        User user;
         HashMap <String, Integer> hashMap = new HashMap();
-        user = db.getUserByUsername(username);
+        User user = db.getUserByUsername(username);
         if (user == null) {
             // User does not exists.
             hashMap.put("code", 0);
