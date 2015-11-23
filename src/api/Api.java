@@ -9,6 +9,7 @@ import controller.JWT;
 import controller.Logic;
 import controller.Security;
 import database.DatabaseWrapper;
+import io.jsonwebtoken.JwtException;
 import model.Game;
 import model.Score;
 import model.User;
@@ -90,15 +91,23 @@ public class Api {
     @GET //"GET-request"
     @Path("/users/") //USER-path - identifice det inden for metoden
     @Produces("application/json")
-    public Response getAllUsers() {
+    public Response getAllUsers(@HeaderParam("jwt") String token) {
 
-        ArrayList<User> users = Logic.getUsers();
+        try {
+            JWT.parseJWT(token);
 
-        return Response
-                .status(200)
-                .entity(new Gson().toJson(users))
-                .header("Access-Control-Allow-Origin", "*")
-                .build();
+            ArrayList<User> users = Logic.getUsers();
+
+            return Response
+                    .status(200)
+                    .entity(new Gson().toJson(users))
+                    .header("Access-Control-Allow-Origin", "*")
+                    .build();
+        } catch (JwtException|IllegalArgumentException e){
+            return Response
+                    .status(Response.Status.UNAUTHORIZED)
+                    .build();
+        }
     }
 
     /*
