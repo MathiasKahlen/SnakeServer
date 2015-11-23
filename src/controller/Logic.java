@@ -85,6 +85,8 @@ public class Logic {
         if (user == null) {
             // User does not exists.
             hashMap.put("code", 0);
+            //usertype must be set to 0 to avoid nullpointer exception in Api method login()
+            hashMap.put("usertype", 0);
         } else {
             hashMap.put("usertype", user.getType());
             if (password.equals(user.getPassword())) {
