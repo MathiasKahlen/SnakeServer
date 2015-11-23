@@ -73,7 +73,6 @@ public class DatabaseWrapper {
                 user.setCreated(resultSet.getDate("created"));
                 user.setStatus(resultSet.getString("status"));
                 user.setType(resultSet.getInt("type"));
-                System.out.println(user.getType());
             }
 
         } catch (SQLException e) {

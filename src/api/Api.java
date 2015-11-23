@@ -311,10 +311,13 @@ public class Api {
     @GET //"GET-request"
     @Path("/scores/")
     @Produces("application/json")
-    public String getHighscore(String data) {
+    public Response getHighscore() {
 
-        return new Gson().toJson(Logic.getHighscore());
-
+        return Response
+                .status(200)
+                .entity(new Gson().toJson(Logic.getHighscore()))
+                .header("Access-Control-Allow-Origin", "*")
+                .build();
     }
 
     /*
