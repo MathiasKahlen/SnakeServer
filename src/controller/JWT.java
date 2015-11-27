@@ -2,6 +2,7 @@ package controller;
 
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
+import java.io.IOException;
 import java.security.Key;
 import io.jsonwebtoken.*;
 import model.Config;
@@ -56,20 +57,5 @@ public class JWT {
 
     }
 
-
-
-//    public static void main(String[] args) {
-//
-//        try {
-//            Config.init();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//
-//        System.out.println(createJWT("2" ,"awafowfkwpfowjf"));
-//
-//        parseJWT("eyJhbGciOiJIUzI1NiJ9.eyJleHAiOjE0NDc3OTU1OTMsInVzZXJuYW1lIjoiYXdhZm93Zmt3cGZvd2pmIiwiaXNzIjoic25ha2VzZXJ2ZXIiLCJ1c2VyaWQiOiIyIiwiaWF0IjoxNDQ3NzkxOTkzfQ.qsTmzfQE1ZehNM9Um2LbX8Ddm_yAUeCiuk0LzF3oZgk");
-//
-//    }
 
 }
