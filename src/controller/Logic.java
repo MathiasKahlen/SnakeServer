@@ -229,7 +229,7 @@ public class Logic {
             game.setWinner(game.getOpponent());
         }
 
-        game.setStatus("Finished");
+        game.setStatus("finished");
         db.updateGame(game, DatabaseWrapper.FINISH_GAME);
         db.createScore(game);
 

@@ -33,7 +33,7 @@ public class Security {
         }
 
         if (input == null || input.length() == 0) {
-            throw new IllegalArgumentException("String to encript cannot be null or zero length");
+            throw new IllegalArgumentException("String to encrypt cannot be null or zero length");
         }
 
         digester.update(inputhash.getBytes());
