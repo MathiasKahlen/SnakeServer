@@ -50,12 +50,17 @@ public class JWT {
         } catch (SignatureException e){
             e.printStackTrace();
         }
-
-
-
-
-
     }
 
-
+    public static Claims getClaims(String jwt){
+        try{
+            Claims claims = Jwts.parser()
+                    .setSigningKey(DatatypeConverter.parseBase64Binary(Config.getJWTSecret()))
+                    .parseClaimsJws(jwt).getBody();
+            return claims;
+        } catch (JwtException e){
+            e.printStackTrace();
+            return null;
+        }
+    }
 }

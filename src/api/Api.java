@@ -11,6 +11,7 @@ import controller.Security;
 import database.DatabaseWrapper;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import model.*;
 
@@ -19,6 +20,7 @@ import javax.ws.rs.core.Response;
 import javax.xml.bind.DatatypeConverter;
 
 //TODO: RET ALLE STATUS KODER
+//TODO: FIX ALLE URLs
 
 @Path("/api")
 public class Api {
@@ -198,37 +200,45 @@ public class Api {
     @Produces("application/json")
     public Response createGame(String json, @HeaderParam("jwt") String token) {
 
-        try {
-            Game game = new Gson().fromJson(json, Game.class);
-            game.getHost().setId((Integer.parseInt((String) Jwts.parser().setSigningKey(DatatypeConverter.parseBase64Binary(Config.getJWTSecret())).parseClaimsJws(token).getBody().get("userid"))));
+            try {
+                Claims claims = JWT.getClaims(token);
 
-            if (Logic.createGame(game)) {
-                return Response
-                        .status(201)
-                        .entity("{\"message\":\"Game was created\"}")
-                        .header("Access-Control-Allow-Headers", "*")
-                        .build();
-            } else {
+                Game game = new Gson().fromJson(json, Game.class);
+                game.getHost().setId(Integer.parseInt((String) claims.get("userid")));
+
+                if (Logic.createGame(game)) {
+                    return Response
+                            .status(201)
+                            .entity("{\"message\":\"Game was created\"}")
+                            .header("Access-Control-Allow-Headers", "*")
+                            .build();
+                } else {
+                    return Response
+                            .status(400)
+                            .entity("{\"message\":\"Something went wrong\"}")
+                            .header("Access-Control-Allow-Headers", "*")
+                            .build();
+                }
+            } catch (JsonSyntaxException e) {
+                e.printStackTrace();
                 return Response
                         .status(400)
-                        .entity("{\"message\":\"Something went wrong\"}")
+                        .entity("{\"message\":\"Error in JSON\"}")
+                        .header("Access-Control-Allow-Headers", "*")
+                        .build();
+            } catch (NullPointerException ex){
+                return Response
+                        .status(403)
+                        .entity("{\"message\":\"Unauthorized\"}")
                         .header("Access-Control-Allow-Headers", "*")
                         .build();
             }
-        } catch (JsonSyntaxException | NullPointerException e) {
-            e.printStackTrace();
-            return Response
-                    .status(400)
-                    .entity("{\"message\":\"Error in JSON\"}")
-                    .header("Access-Control-Allow-Headers", "*")
-                    .build();
-        }
     }
 
     @PUT
     @Path("/games/join/")
     @Produces("application/json")
-    public Response joinGame(String json) {
+    public Response joinGame(String json, @HeaderParam("jwt") String token) {
 
         try {
             Game game = new Gson().fromJson(json, Game.class);
@@ -260,7 +270,7 @@ public class Api {
     @PUT
     @Path("/games/start/")
     @Produces("application/json")
-    public Response startGame(String json) {
+    public Response startGame(String json, @HeaderParam("jwt") String token) {
 
         try {
             Game game = Logic.startGame(new Gson().fromJson(json, Game.class));
@@ -291,7 +301,7 @@ public class Api {
     @DELETE //DELETE-request fjernelse af data(spillet slettes)
     @Path("/games/{gameid}")
     @Produces("appication/json")
-    public Response deleteGame(@PathParam("gameid") int gameId) {
+    public Response deleteGame(@PathParam("gameid") int gameId, @HeaderParam("jwt") String token) {
 
         int deleteGame = Logic.deleteGame(gameId);
 
@@ -310,10 +320,11 @@ public class Api {
         }
     }
 
+    //TODO: HVORNÅR BRUGES DENNE?
     @GET //"GET-request"
     @Path("/game/{gameid}")
     @Produces("application/json")
-    public String getGame(@PathParam("gameid") int gameid) {
+    public String getGame(@PathParam("gameid") int gameid, @HeaderParam("jwt") String token) {
 
         Game game = Logic.getGame(gameid);
         return new Gson().toJson(game);
@@ -322,7 +333,7 @@ public class Api {
     @GET //"GET-request"
     @Path("/scores/")
     @Produces("application/json")
-    public Response getHighscore() {
+    public Response getHighscore(@HeaderParam("jwt") String token) {
 
         return Response
                 .status(200)
@@ -337,7 +348,7 @@ public class Api {
     @GET //"GET-request"
     @Path("/games/{userid}/")
     @Produces("application/json")
-    public Response getGamesByUserID(@PathParam("userid") int userId) {
+    public Response getGamesByUserID(@PathParam("userid") int userId, @HeaderParam("jwt") String token) {
 
         ArrayList<Game> games = Logic.getGames(DatabaseWrapper.GAMES_BY_ID, userId);
 
@@ -354,7 +365,7 @@ public class Api {
     @GET //"GET-request"
     @Path("/games/{status}/{userid}")
     @Produces("application/json")
-    public Response getGamesByStatusAndUserID(@PathParam("status") String status, @PathParam("userid") int userId) {
+    public Response getGamesByStatusAndUserID(@PathParam("status") String status, @PathParam("userid") int userId, @HeaderParam("jwt") String token) {
 
         ArrayList<Game> games = null;
         switch (status) {
@@ -380,7 +391,7 @@ public class Api {
     @GET
     @Path("/games/opponent/{userid}/")
     @Produces("application/json")
-    public Response getGamesInvitedByID(@PathParam("userid") int userId) {
+    public Response getGamesInvitedByID(@PathParam("userid") int userId, @HeaderParam("jwt") String token) {
 
         ArrayList<Game> games = Logic.getGames(DatabaseWrapper.PENDING_INVITED_BY_ID, userId);
 
@@ -396,7 +407,7 @@ public class Api {
     @GET
     @Path("/games/host/{userid}/")
     @Produces("application/json")
-    public Response getGamesHostedByID(@PathParam("userid") int userId) {
+    public Response getGamesHostedByID(@PathParam("userid") int userId, @HeaderParam("jwt") String token) {
 
         ArrayList<Game> games = Logic.getGames(DatabaseWrapper.PENDING_HOSTED_BY_ID, userId);
 
@@ -413,7 +424,7 @@ public class Api {
     @GET //"GET-request"
     @Path("/games/open/")
     @Produces("application/json")
-    public Response getOpenGames() {
+    public Response getOpenGames(@HeaderParam("jwt") String token) {
 
 
         ArrayList<Game> games = Logic.getGames(DatabaseWrapper.OPEN_GAMES, 0);
@@ -433,7 +444,7 @@ public class Api {
     @GET //"GET-request"
     @Path("/scores/{userid}")
     @Produces("application/json")
-    public Response getScoresByUserID(@PathParam("userid") int userid) {
+    public Response getScoresByUserID(@PathParam("userid") int userid, @HeaderParam("jwt") String token) {
 
         ArrayList<Score> score = Logic.getScoresByUserID(userid);
 
