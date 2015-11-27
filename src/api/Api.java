@@ -9,13 +9,14 @@ import controller.JWT;
 import controller.Logic;
 import controller.Security;
 import database.DatabaseWrapper;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
-import model.Game;
-import model.Score;
-import model.User;
+import io.jsonwebtoken.Jwts;
+import model.*;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
+import javax.xml.bind.DatatypeConverter;
 
 //TODO: RET ALLE STATUS KODER
 
@@ -195,21 +196,22 @@ public class Api {
     @POST //POST-request: Nyt data; nyt spil oprettes
     @Path("/games/")
     @Produces("application/json")
-    public Response createGame(String json) {
+    public Response createGame(String json, @HeaderParam("jwt") String token) {
 
         try {
             Game game = new Gson().fromJson(json, Game.class);
+            game.getHost().setId((Integer.parseInt((String) Jwts.parser().setSigningKey(DatatypeConverter.parseBase64Binary(Config.getJWTSecret())).parseClaimsJws(token).getBody().get("userid"))));
 
             if (Logic.createGame(game)) {
                 return Response
                         .status(201)
-                        .entity(new Gson().toJson(game))
+                        .entity("{\"message\":\"Game was created\"}")
                         .header("Access-Control-Allow-Headers", "*")
                         .build();
             } else {
                 return Response
                         .status(400)
-                        .entity("{\"message\":\"something went wrong\"}")
+                        .entity("{\"message\":\"Something went wrong\"}")
                         .header("Access-Control-Allow-Headers", "*")
                         .build();
             }

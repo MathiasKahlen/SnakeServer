@@ -35,7 +35,7 @@ public class JWT {
                 .setClaims(claims)
                 .setIssuedAt(now)
                 .setExpiration(exp)
-                .setIssuer("snakeserver")
+                .setIssuer("SnakeServer")
                 .signWith(signatureAlgorithm, signingKey);
 
         return builder.compact();
