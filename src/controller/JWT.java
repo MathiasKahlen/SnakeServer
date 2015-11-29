@@ -53,6 +53,7 @@ public class JWT {
     }
 
     public static Claims getClaims(String jwt){
+
         try{
             Claims claims = Jwts.parser()
                     .setSigningKey(DatatypeConverter.parseBase64Binary(Config.getJWTSecret()))
@@ -60,7 +61,7 @@ public class JWT {
             return claims;
         } catch (JwtException e){
             e.printStackTrace();
-            return null;
         }
+        return null;
     }
 }

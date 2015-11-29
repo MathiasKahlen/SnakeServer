@@ -200,9 +200,10 @@ public class Api {
     @Produces("application/json")
     public Response createGame(String json, @HeaderParam("jwt") String token) {
 
-            try {
-                Claims claims = JWT.getClaims(token);
+        Claims claims = JWT.getClaims(token);
 
+        if (claims != null) {
+            try {
                 Game game = new Gson().fromJson(json, Game.class);
                 game.getHost().setId(Integer.parseInt((String) claims.get("userid")));
 
@@ -219,20 +220,20 @@ public class Api {
                             .header("Access-Control-Allow-Headers", "*")
                             .build();
                 }
-            } catch (JsonSyntaxException e) {
+            } catch (JsonSyntaxException | NullPointerException e) {
                 e.printStackTrace();
                 return Response
                         .status(400)
                         .entity("{\"message\":\"Error in JSON\"}")
                         .header("Access-Control-Allow-Headers", "*")
                         .build();
-            } catch (NullPointerException ex){
-                return Response
-                        .status(403)
-                        .entity("{\"message\":\"Unauthorized\"}")
-                        .header("Access-Control-Allow-Headers", "*")
-                        .build();
             }
+        }
+        return Response
+                .status(401)
+                .entity("{\"message\":\"Unauthorized\"}")
+                .header("Access-Control-Allow-Headers", "*")
+                .build();
     }
 
     @PUT
@@ -240,30 +241,40 @@ public class Api {
     @Produces("application/json")
     public Response joinGame(String json, @HeaderParam("jwt") String token) {
 
-        try {
-            Game game = new Gson().fromJson(json, Game.class);
+        Claims claims = JWT.getClaims(token);
 
-            if (Logic.joinGame(game)) {
-                return Response
-                        .status(201)
-                        .entity("{\"message\":\"Game was joined\"}")
-                        .header("Access-Control-Allow-Origin", "*")
-                        .build();
-            } else {
+        if (claims != null) {
+            try {
+                Game game = new Gson().fromJson(json, Game.class);
+                game.getOpponent().setId(Integer.parseInt((String) claims.get("userid")));
+
+                if (Logic.joinGame(game)) {
+                    return Response
+                            .status(201)
+                            .entity("{\"message\":\"Game was joined\"}")
+                            .header("Access-Control-Allow-Origin", "*")
+                            .build();
+                } else {
+                    return Response
+                            .status(400)
+                            .entity("{\"message\":\"Game closed\"}")
+                            .header("Access-Control-Allow-Headers", "*")
+                            .build();
+                }
+            } catch (JsonSyntaxException | NullPointerException e) {
+                e.printStackTrace();
                 return Response
                         .status(400)
-                        .entity("{\"message\":\"Game closed\"}")
+                        .entity("{\"message\":\"Error in JSON\"}")
                         .header("Access-Control-Allow-Headers", "*")
                         .build();
             }
-        } catch (JsonSyntaxException | NullPointerException e) {
-            e.printStackTrace();
-            return Response
-                    .status(400)
-                    .entity("{\"message\":\"Error in JSON\"}")
-                    .header("Access-Control-Allow-Headers", "*")
-                    .build();
         }
+        return Response
+                .status(401)
+                .entity("{\"message\":\"Unauthorized\"}")
+                .header("Access-Control-Allow-Headers", "*")
+                .build();
     }
 
 
@@ -272,29 +283,40 @@ public class Api {
     @Produces("application/json")
     public Response startGame(String json, @HeaderParam("jwt") String token) {
 
-        try {
-            Game game = Logic.startGame(new Gson().fromJson(json, Game.class));
+        Claims claims = JWT.getClaims(token);
 
-            if (game != null) {
-                return Response
-                        .status(201)
-                        .entity(new Gson().toJson(game))
-                        .header("Access-Control-Allow-Origin", "*")
-                        .build();
-            } else {
+        if (claims != null) {
+
+            try {
+                Game game = Logic.startGame(new Gson().fromJson(json, Game.class));
+
+                if (game != null) {
+                    return Response
+                            .status(201)
+                            .entity(new Gson().toJson(game))
+                            .header("Access-Control-Allow-Origin", "*")
+                            .build();
+                } else {
+                    return Response
+                            .status(400)
+                            .entity("{\"message\":\"Something went wrong\"}")
+                            .build();
+                }
+            } catch (JsonSyntaxException | NullPointerException e) {
+                e.printStackTrace();
                 return Response
                         .status(400)
-                        .entity("{\"message\":\"Something went wrong\"}")
+                        .entity("{\"message\":\"Error in JSON\"}")
+                        .header("Access-Control-Allow-Headers", "*")
                         .build();
             }
-        } catch (JsonSyntaxException | NullPointerException e) {
-            e.printStackTrace();
-            return Response
-                    .status(400)
-                    .entity("{\"message\":\"Error in JSON\"}")
-                    .header("Access-Control-Allow-Headers", "*")
-                    .build();
         }
+
+        return Response
+                .status(401)
+                .entity("{\"message\":\"Unauthorized\"}")
+                .header("Access-Control-Allow-Headers", "*")
+                .build();
 
     }
 
@@ -303,21 +325,31 @@ public class Api {
     @Produces("appication/json")
     public Response deleteGame(@PathParam("gameid") int gameId, @HeaderParam("jwt") String token) {
 
-        int deleteGame = Logic.deleteGame(gameId);
+        Claims claims = JWT.getClaims(token);
 
-        if (deleteGame == 1) {
-            return Response
-                    .status(200)
-                    .entity("{\"message\":\"Game was deleted\"}")
-                    .header("Access-Control-Allow-Headers", "*")
-                    .build();
-        } else {
-            return Response
-                    .status(400)
-                    .entity("{\"message\":\"Failed. Game was not deleted\"}")
-                    .header("Access-Control-Allow-Headers", "*")
-                    .build();
+        if (claims != null) {
+
+            int deleteGame = Logic.deleteGame(gameId);
+
+            if (deleteGame == 1) {
+                return Response
+                        .status(200)
+                        .entity("{\"message\":\"Game was deleted\"}")
+                        .header("Access-Control-Allow-Headers", "*")
+                        .build();
+            } else {
+                return Response
+                        .status(400)
+                        .entity("{\"message\":\"Failed. Game was not deleted\"}")
+                        .header("Access-Control-Allow-Headers", "*")
+                        .build();
+            }
         }
+        return Response
+                .status(401)
+                .entity("{\"message\":\"Unauthorized\"}")
+                .header("Access-Control-Allow-Headers", "*")
+                .build();
     }
 
     //TODO: HVORNÅR BRUGES DENNE?
@@ -335,10 +367,19 @@ public class Api {
     @Produces("application/json")
     public Response getHighscore(@HeaderParam("jwt") String token) {
 
+        Claims claims = JWT.getClaims(token);
+
+        if (claims != null) {
+            return Response
+                    .status(200)
+                    .entity(new Gson().toJson(Logic.getHighscore()))
+                    .header("Access-Control-Allow-Origin", "*")
+                    .build();
+        }
         return Response
-                .status(200)
-                .entity(new Gson().toJson(Logic.getHighscore()))
-                .header("Access-Control-Allow-Origin", "*")
+                .status(401)
+                .entity("{\"message\":\"Unauthorized\"}")
+                .header("Access-Control-Allow-Headers", "*")
                 .build();
     }
 
@@ -348,14 +389,27 @@ public class Api {
     @GET //"GET-request"
     @Path("/games/{userid}/")
     @Produces("application/json")
-    public Response getGamesByUserID(@PathParam("userid") int userId, @HeaderParam("jwt") String token) {
+    public Response getGamesByUserID(@HeaderParam("jwt") String token) {
 
-        ArrayList<Game> games = Logic.getGames(DatabaseWrapper.GAMES_BY_ID, userId);
+        Claims claims = JWT.getClaims(token);
 
+        if (claims!=null) {
+
+            //Get userid from the token
+            int userId = Integer.parseInt((String) claims.get("userid"));
+
+            ArrayList<Game> games = Logic.getGames(DatabaseWrapper.GAMES_BY_ID, userId);
+
+            return Response
+                    .status(201)
+                    .entity(new Gson().toJson(games))
+                    .header("Access-Control-Allow-Origin", "*")
+                    .build();
+        }
         return Response
-                .status(201)
-                .entity(new Gson().toJson(games))
-                .header("Access-Control-Allow-Origin", "*")
+                .status(401)
+                .entity("{\"message\":\"Unauthorized\"}")
+                .header("Access-Control-Allow-Headers", "*")
                 .build();
     }
 
@@ -365,25 +419,36 @@ public class Api {
     @GET //"GET-request"
     @Path("/games/{status}/{userid}")
     @Produces("application/json")
-    public Response getGamesByStatusAndUserID(@PathParam("status") String status, @PathParam("userid") int userId, @HeaderParam("jwt") String token) {
+    public Response getGamesByStatusAndUserID(@PathParam("status") String status, @HeaderParam("jwt") String token) {
 
-        ArrayList<Game> games = null;
-        switch (status) {
-            case "pending":
-                games = Logic.getGames(DatabaseWrapper.PENDING_BY_ID, userId);
-                break;
-            case "open":
-                games = Logic.getGames(DatabaseWrapper.OPEN_BY_ID, userId);
-                break;
-            case "finished":
-                games = Logic.getGames(DatabaseWrapper.COMPLETED_BY_ID, userId);
-                break;
+        Claims claims = JWT.getClaims(token);
+
+        if (claims!=null) {
+            //Get userId from token
+            int userId = Integer.parseInt((String)claims.get("userid"));
+            ArrayList<Game> games = null;
+            switch (status) {
+                case "pending":
+                    games = Logic.getGames(DatabaseWrapper.PENDING_BY_ID, userId);
+                    break;
+                case "open":
+                    games = Logic.getGames(DatabaseWrapper.OPEN_BY_ID, userId);
+                    break;
+                case "finished":
+                    games = Logic.getGames(DatabaseWrapper.COMPLETED_BY_ID, userId);
+                    break;
+            }
+
+            return Response
+                    .status(201)
+                    .entity(new Gson().toJson(games))
+                    .header("Access-Control-Allow-Origin", "*")
+                    .build();
         }
-
         return Response
-                .status(201)
-                .entity(new Gson().toJson(games))
-                .header("Access-Control-Allow-Origin", "*")
+                .status(401)
+                .entity("{\"message\":\"Unauthorized\"}")
+                .header("Access-Control-Allow-Headers", "*")
                 .build();
     }
 
@@ -391,14 +456,27 @@ public class Api {
     @GET
     @Path("/games/opponent/{userid}/")
     @Produces("application/json")
-    public Response getGamesInvitedByID(@PathParam("userid") int userId, @HeaderParam("jwt") String token) {
+    public Response getGamesInvitedByID(@HeaderParam("jwt") String token) {
 
-        ArrayList<Game> games = Logic.getGames(DatabaseWrapper.PENDING_INVITED_BY_ID, userId);
+        Claims claims = JWT.getClaims(token);
 
+        if (claims!=null) {
+
+            //Get userid from the token
+            int userId = Integer.parseInt((String)claims.get("userid"));
+
+            ArrayList<Game> games = Logic.getGames(DatabaseWrapper.PENDING_INVITED_BY_ID, userId);
+
+            return Response
+                    .status(201)
+                    .entity(new Gson().toJson(games))
+                    .header("Access-Control-Allow-Origin", "*")
+                    .build();
+        }
         return Response
-                .status(201)
-                .entity(new Gson().toJson(games))
-                .header("Access-Control-Allow-Origin", "*")
+                .status(401)
+                .entity("{\"message\":\"Unauthorized\"}")
+                .header("Access-Control-Allow-Headers", "*")
                 .build();
     }
 
@@ -407,14 +485,26 @@ public class Api {
     @GET
     @Path("/games/host/{userid}/")
     @Produces("application/json")
-    public Response getGamesHostedByID(@PathParam("userid") int userId, @HeaderParam("jwt") String token) {
+    public Response getGamesHostedByID(@HeaderParam("jwt") String token) {
 
-        ArrayList<Game> games = Logic.getGames(DatabaseWrapper.PENDING_HOSTED_BY_ID, userId);
+        Claims claims = JWT.getClaims(token);
 
+        if (claims!=null) {
+
+            int userId = Integer.parseInt((String)claims.get("userid"));
+
+            ArrayList<Game> games = Logic.getGames(DatabaseWrapper.PENDING_HOSTED_BY_ID, userId);
+
+            return Response
+                    .status(201)
+                    .entity(new Gson().toJson(games))
+                    .header("Access-Control-Allow-Origin", "*")
+                    .build();
+        }
         return Response
-                .status(201)
-                .entity(new Gson().toJson(games))
-                .header("Access-Control-Allow-Origin", "*")
+                .status(401)
+                .entity("{\"message\":\"Unauthorized\"}")
+                .header("Access-Control-Allow-Headers", "*")
                 .build();
     }
 
@@ -426,13 +516,22 @@ public class Api {
     @Produces("application/json")
     public Response getOpenGames(@HeaderParam("jwt") String token) {
 
+        Claims claims = JWT.getClaims(token);
 
-        ArrayList<Game> games = Logic.getGames(DatabaseWrapper.OPEN_GAMES, 0);
+        if (claims!=null) {
 
+            ArrayList<Game> games = Logic.getGames(DatabaseWrapper.OPEN_GAMES, 0);
+
+            return Response
+                    .status(201)
+                    .entity(new Gson().toJson(games))
+                    .header("Access-Control-Allow-Origin", "*")
+                    .build();
+        }
         return Response
-                .status(201)
-                .entity(new Gson().toJson(games))
-                .header("Access-Control-Allow-Origin", "*")
+                .status(401)
+                .entity("{\"message\":\"Unauthorized\"}")
+                .header("Access-Control-Allow-Headers", "*")
                 .build();
     }
 
@@ -446,12 +545,22 @@ public class Api {
     @Produces("application/json")
     public Response getScoresByUserID(@PathParam("userid") int userid, @HeaderParam("jwt") String token) {
 
-        ArrayList<Score> score = Logic.getScoresByUserID(userid);
+        Claims claims = JWT.getClaims(token);
 
+        if (claims!=null){
+
+            ArrayList<Score> score = Logic.getScoresByUserID(userid);
+            return Response
+                    .status(201)
+                    .entity(new Gson().toJson(score))
+                    .header("Access-Control-Allow-Origin", "*")
+                    .build();
+        }
         return Response
-                .status(201)
-                .entity(new Gson().toJson(score))
-                .header("Access-Control-Allow-Origin", "*")
+                .status(401)
+                .entity("{\"message\":\"Unauthorized\"}")
+                .header("Access-Control-Allow-Headers", "*")
                 .build();
     }
+
 }
