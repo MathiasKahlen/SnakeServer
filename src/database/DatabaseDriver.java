@@ -172,7 +172,16 @@ public class DatabaseDriver {
     }
 
     public String getSQLGamesByStatusAndUserID(){
-        return "SELECT * FROM Games WHERE status = ? AND (host = ? OR opponent = ?)";
+
+        return "select games.*, host.username as hostName, opponent.username as opponentName, winner.username as winnerName " +
+                "FROM games " +
+                "LEFT OUTER JOIN users opponent " +
+                "ON opponent.id=games.opponent " +
+                "LEFT OUTER JOIN users host " +
+                "ON host.id=games.host " +
+                "LEFT OUTER JOIN users winner " +
+                "ON winner.id=games.winner " +
+                "WHERE games.status = ? AND (host = ? OR opponent = ?);";
     }
 
     public String getSQLOpenGames() {
@@ -184,7 +193,15 @@ public class DatabaseDriver {
     }
 
     public String getSQLGamesHostedByUserID(){
-        return "SELECT * FROM Games WHERE status = 'pending' AND host = ?";
+        return "select games.*, host.username as hostName, opponent.username as opponentName, winner.username as winnerName " +
+                "FROM games " +
+                "LEFT OUTER JOIN users opponent " +
+                "ON opponent.id=games.opponent " +
+                "LEFT OUTER JOIN users host " +
+                "ON host.id=games.host " +
+                "LEFT OUTER JOIN users winner " +
+                "ON winner.id=games.winner " +
+                "WHERE host = ? AND games.status = 'pending' OR host = ? AND games.status = 'open';";
     }
 
     public String authenticatedSql() {

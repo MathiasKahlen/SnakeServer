@@ -24,7 +24,7 @@ public class DatabaseWrapper {
     public static final int GAMES_BY_ID = 0;
     public static final int PENDING_BY_ID = 1;
     public static final int PENDING_INVITED_BY_ID = 2;
-    public static final int PENDING_HOSTED_BY_ID = 3;
+    public static final int HOSTED_BY_ID = 3;
     public static final int OPEN_BY_ID = 4;
     public static final int COMPLETED_BY_ID = 5;
     public static final int OPEN_GAMES = 6;
@@ -566,9 +566,10 @@ public class DatabaseWrapper {
                     ps = connection.prepareStatement(dbDriver.getSQLGamesInvitedByUserID());
                     ps.setInt(1, id);
                     break;
-                case PENDING_HOSTED_BY_ID:
+                case HOSTED_BY_ID:
                     ps = connection.prepareStatement(dbDriver.getSQLGamesHostedByUserID());
                     ps.setInt(1, id);
+                    ps.setInt(2, id);
                     break;
                 case OPEN_BY_ID:
                     ps = connection.prepareStatement(dbDriver.getSQLGamesByStatusAndUserID());
@@ -600,14 +601,17 @@ public class DatabaseWrapper {
                 // Creating Gamer object (host)
                 Gamer host = new Gamer();
                 host.setId(resultSet.getInt("host"));
+                host.setUsername(resultSet.getString("hostName"));
 
                 // Creating Gamer object (opponent)
                 Gamer opponent = new Gamer();
                 opponent.setId(resultSet.getInt("opponent"));
+                opponent.setUsername(resultSet.getString("opponentName"));
 
                 // Creating Gammer object (winner)
                 Gamer winner = new Gamer();
                 winner.setId(resultSet.getInt("winner"));
+                winner.setUsername(resultSet.getString("winnerName"));
 
                 // Creating Game object (game)
                 Game game = new Game();

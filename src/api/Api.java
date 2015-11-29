@@ -11,13 +11,10 @@ import controller.Security;
 import database.DatabaseWrapper;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.JwtParser;
-import io.jsonwebtoken.Jwts;
 import model.*;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
-import javax.xml.bind.DatatypeConverter;
 
 //TODO: RET ALLE STATUS KODER
 //TODO: FIX ALLE URLs
@@ -387,7 +384,7 @@ public class Api {
     Getting games by userid
      */
     @GET //"GET-request"
-    @Path("/games/{userid}/")
+    @Path("/games/")
     @Produces("application/json")
     public Response getGamesByUserID(@HeaderParam("jwt") String token) {
 
@@ -417,7 +414,7 @@ public class Api {
     Getting games by game status and user id
      */
     @GET //"GET-request"
-    @Path("/games/{status}/{userid}")
+    @Path("/games/{status}/")
     @Produces("application/json")
     public Response getGamesByStatusAndUserID(@PathParam("status") String status, @HeaderParam("jwt") String token) {
 
@@ -454,7 +451,7 @@ public class Api {
 
     //Gets all games where the user is invited
     @GET
-    @Path("/games/opponent/{userid}/")
+    @Path("/games/opponent/")
     @Produces("application/json")
     public Response getGamesInvitedByID(@HeaderParam("jwt") String token) {
 
@@ -483,7 +480,7 @@ public class Api {
 
     //Gets all games hosted by the user
     @GET
-    @Path("/games/host/{userid}/")
+    @Path("/games/host/")
     @Produces("application/json")
     public Response getGamesHostedByID(@HeaderParam("jwt") String token) {
 
@@ -493,7 +490,7 @@ public class Api {
 
             int userId = Integer.parseInt((String)claims.get("userid"));
 
-            ArrayList<Game> games = Logic.getGames(DatabaseWrapper.PENDING_HOSTED_BY_ID, userId);
+            ArrayList<Game> games = Logic.getGames(DatabaseWrapper.HOSTED_BY_ID, userId);
 
             return Response
                     .status(201)

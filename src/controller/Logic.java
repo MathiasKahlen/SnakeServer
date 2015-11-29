@@ -136,9 +136,9 @@ public class Logic {
                 //Used for showing all pending games the user has been invited to play
                 games = db.getGames(DatabaseWrapper.PENDING_INVITED_BY_ID, userId);
                 break;
-            case DatabaseWrapper.PENDING_HOSTED_BY_ID:
+            case DatabaseWrapper.HOSTED_BY_ID:
                 //Used for showing the open games created by the user
-                games = db.getGames(DatabaseWrapper.PENDING_HOSTED_BY_ID, userId);
+                games = db.getGames(DatabaseWrapper.HOSTED_BY_ID, userId);
                 break;
             case DatabaseWrapper.OPEN_BY_ID:
                 //Used for showing the open games created by the user
