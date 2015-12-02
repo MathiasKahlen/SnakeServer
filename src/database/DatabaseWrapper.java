@@ -573,9 +573,8 @@ public class DatabaseWrapper {
                     break;
                 case OPEN_BY_ID:
                     ps = connection.prepareStatement(dbDriver.getSQLGamesByStatusAndUserID());
-                    ps.setString(1, "open");
-                    ps.setInt(2, id);
-                    ps.setInt(3, id);
+                    ps.setInt(1, id);
+                    ps.setString(2, "open");
                     break;
                 case COMPLETED_BY_ID:
                     ps = connection.prepareStatement(dbDriver.getSQLGamesByStatusAndUserID());
@@ -585,6 +584,7 @@ public class DatabaseWrapper {
                     break;
                 case OPEN_GAMES:
                     ps = connection.prepareStatement(dbDriver.getSQLOpenGames());
+                    ps.setInt(1, id);
                     break;
                 case ALL_GAMES:
                     ps = connection.prepareStatement(dbDriver.getSqlRecords("games"));

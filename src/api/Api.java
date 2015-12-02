@@ -152,7 +152,7 @@ public class Api {
             if (createdUser) {
 
                 return Response
-                        .status(200)
+                        .status(201)
                         .entity("{\"message\":\"User was created\"}")
                         .header("Access-Control-Allow-Headers", "*")
                         .build();
@@ -243,11 +243,13 @@ public class Api {
         if (claims != null) {
             try {
                 Game game = new Gson().fromJson(json, Game.class);
-                game.getOpponent().setId(Integer.parseInt((String) claims.get("userid")));
+                Gamer opponent = new Gamer();
+                opponent.setId(Integer.parseInt((String) claims.get("userid")));
+                game.setOpponent(opponent);
 
                 if (Logic.joinGame(game)) {
                     return Response
-                            .status(201)
+                            .status(200)
                             .entity("{\"message\":\"Game was joined\"}")
                             .header("Access-Control-Allow-Origin", "*")
                             .build();
@@ -289,7 +291,7 @@ public class Api {
 
                 if (game != null) {
                     return Response
-                            .status(201)
+                            .status(200)
                             .entity(new Gson().toJson(game))
                             .header("Access-Control-Allow-Origin", "*")
                             .build();
@@ -398,7 +400,7 @@ public class Api {
             ArrayList<Game> games = Logic.getGames(DatabaseWrapper.GAMES_BY_ID, userId);
 
             return Response
-                    .status(201)
+                    .status(200)
                     .entity(new Gson().toJson(games))
                     .header("Access-Control-Allow-Origin", "*")
                     .build();
@@ -429,7 +431,7 @@ public class Api {
                     games = Logic.getGames(DatabaseWrapper.PENDING_BY_ID, userId);
                     break;
                 case "open":
-                    games = Logic.getGames(DatabaseWrapper.OPEN_BY_ID, userId);
+                    games = Logic.getGames(DatabaseWrapper.OPEN_GAMES, userId);
                     break;
                 case "finished":
                     games = Logic.getGames(DatabaseWrapper.COMPLETED_BY_ID, userId);
@@ -437,7 +439,7 @@ public class Api {
             }
 
             return Response
-                    .status(201)
+                    .status(200)
                     .entity(new Gson().toJson(games))
                     .header("Access-Control-Allow-Origin", "*")
                     .build();
@@ -465,7 +467,7 @@ public class Api {
             ArrayList<Game> games = Logic.getGames(DatabaseWrapper.PENDING_INVITED_BY_ID, userId);
 
             return Response
-                    .status(201)
+                    .status(200)
                     .entity(new Gson().toJson(games))
                     .header("Access-Control-Allow-Origin", "*")
                     .build();
@@ -493,7 +495,7 @@ public class Api {
             ArrayList<Game> games = Logic.getGames(DatabaseWrapper.HOSTED_BY_ID, userId);
 
             return Response
-                    .status(201)
+                    .status(200)
                     .entity(new Gson().toJson(games))
                     .header("Access-Control-Allow-Origin", "*")
                     .build();
@@ -508,29 +510,29 @@ public class Api {
     /*
     Getting a list of all open games
      */
-    @GET //"GET-request"
-    @Path("/games/open/")
-    @Produces("application/json")
-    public Response getOpenGames(@HeaderParam("jwt") String token) {
-
-        Claims claims = JWT.getClaims(token);
-
-        if (claims!=null) {
-
-            ArrayList<Game> games = Logic.getGames(DatabaseWrapper.OPEN_GAMES, 0);
-
-            return Response
-                    .status(201)
-                    .entity(new Gson().toJson(games))
-                    .header("Access-Control-Allow-Origin", "*")
-                    .build();
-        }
-        return Response
-                .status(401)
-                .entity("{\"message\":\"Unauthorized\"}")
-                .header("Access-Control-Allow-Headers", "*")
-                .build();
-    }
+//    @GET //"GET-request"
+//    @Path("/games/open/")
+//    @Produces("application/json")
+//    public Response getOpenGames(@HeaderParam("jwt") String token) {
+//
+//        Claims claims = JWT.getClaims(token);
+//
+//        if (claims!=null) {
+//
+//            ArrayList<Game> games = Logic.getGames(DatabaseWrapper.OPEN_GAMES, 0);
+//
+//            return Response
+//                    .status(201)
+//                    .entity(new Gson().toJson(games))
+//                    .header("Access-Control-Allow-Origin", "*")
+//                    .build();
+//        }
+//        return Response
+//                .status(401)
+//                .entity("{\"message\":\"Unauthorized\"}")
+//                .header("Access-Control-Allow-Headers", "*")
+//                .build();
+//    }
 
 
     /*
@@ -548,7 +550,7 @@ public class Api {
 
             ArrayList<Score> score = Logic.getScoresByUserID(userid);
             return Response
-                    .status(201)
+                    .status(200)
                     .entity(new Gson().toJson(score))
                     .header("Access-Control-Allow-Origin", "*")
                     .build();

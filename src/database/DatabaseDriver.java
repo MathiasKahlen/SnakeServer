@@ -185,7 +185,16 @@ public class DatabaseDriver {
     }
 
     public String getSQLOpenGames() {
-        return "select * from games WHERE status = 'open'";
+
+        return "select games.*, host.username as hostName, opponent.username as opponentName, winner.username as winnerName " +
+                "FROM games " +
+                "LEFT OUTER JOIN users opponent " +
+                "ON opponent.id=games.opponent " +
+                "LEFT OUTER JOIN users host " +
+                "ON host.id=games.host " +
+                "LEFT OUTER JOIN users winner " +
+                "ON winner.id=games.winner " +
+                "WHERE host != ? AND games.status = 'open';";
     }
 
     public String getSQLGamesInvitedByUserID() {
