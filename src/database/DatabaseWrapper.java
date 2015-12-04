@@ -215,7 +215,7 @@ public class DatabaseWrapper {
             while (resultSet.next()) {
 
                 if (!resultSet.getString("status").equals("deleted") &&
-                        resultSet.getType()!=0) {
+                        resultSet.getInt("type")!=0) {
                     user = new User();
 
                     user.setId(resultSet.getInt("id"));
