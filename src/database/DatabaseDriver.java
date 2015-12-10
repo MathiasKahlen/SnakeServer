@@ -167,6 +167,18 @@ public class DatabaseDriver {
         return "UPDATE " + table + " SET status = ? WHERE id = ?";
     }
 
+    public String getSqlAllGames(){
+        return "select games.*, host.username as hostName, opponent.username as opponentName, winner.username as winnerName " +
+                "FROM games " +
+                "LEFT OUTER JOIN users opponent " +
+                "ON opponent.id=games.opponent " +
+                "LEFT OUTER JOIN users host " +
+                "ON host.id=games.host " +
+                "LEFT OUTER JOIN users winner " +
+                "ON winner.id=games.winner " +
+                ";";
+    }
+
     public String getSQLAllGamesByUserID() {
         return "select * from games where host = ? OR opponent = ?";
     }

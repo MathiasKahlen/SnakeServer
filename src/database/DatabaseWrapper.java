@@ -587,7 +587,7 @@ public class DatabaseWrapper {
                     ps.setInt(1, id);
                     break;
                 case ALL_GAMES:
-                    ps = connection.prepareStatement(dbDriver.getSqlRecords("games"));
+                    ps = connection.prepareStatement(dbDriver.getSqlAllGames());
                     break;
 
             }
